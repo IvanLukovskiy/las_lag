@@ -1,0 +1,66 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+*/htmlcov
+
+# production
+/build
+/web/build
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+*.pyc
+*.pyo
+__pycache__
+.env
+.vscode
+.idea
+.history
+local_settings.py
+.swp
+app/data
+app/celerybeat.pid
+.~lock*#
+*.sql.gz
+*.sql
+*.xlsx
+TODO.md
+# local settings
+app/ssup/dev_settings.py
+/app/xunit.xml
+venv
+env
+/app/ssup/files/media/
+/app/ssup/files/static/
+
+
+# unit test and coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+*.coverage
+coverage.xml
+xunit.xml
+.cache
+nosetests.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
