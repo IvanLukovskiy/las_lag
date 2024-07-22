@@ -1,0 +1,5 @@
+[MASTER]
+ignore=tests.py, urls.py, migrations, __pycache__, certs
+
+[FORMAT]
+max-line-length=119

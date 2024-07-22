@@ -1,0 +1,68 @@
+---
+exclude: migrations|templates
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-ast
+  - repo: https://github.com/myint/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
+        files: ^((?!\.venv).)*$
+        args:
+          [
+              -i,
+              --remove-all-unused-imports,
+              --ignore-init-module-imports,
+              --expand-star-imports,
+              --remove-duplicate-keys
+          ]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        files: ^((?!\.venv).)*$
+        args: [ --settings-file, pyproject.toml ]
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
+    hooks:
+      - id: black
+        files: ^((?!\.venv).)*$
+        language_version: python3
+        args: [ "--config", "pyproject.toml" ]
+
+  - repo: https://github.com/radix-ai/auto-smart-commit
+    rev: v1.0.3
+    hooks:
+      - id: auto-smart-commit
+        files: ^((?!\.venv).)*$
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
+        files: ^((?!\.venv).)*$
+        args: [ --py3-plus, --py36-plus, --py38-plus, --py39-plus, --py310-plus ]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: "6.1.0"
+    hooks:
+      - id: flake8
+        files: ^((?!\.venv).)*$
+        args: [ --config, .flake8.cfg ]
+        additional_dependencies:
+          - flake8-cognitive-complexity
+          - flake8-comprehensions
+          - flake8-eradicate
+          - flake8-expression-complexity
+          - flake8-pie
+          - flake8-plugin-utils
+          - flake8-print
+          - flake8-pytest
+          - flake8-pytest-style
+          - flake8-simplify
+          - flake8-variables-names
+          - flake8-annotations

@@ -1,34 +1,23 @@
-from fastapi import FastAPI
-import uvicorn
+from contextlib import asynccontextmanager
 
+import uvicorn
+from fastapi import FastAPI
+
+from api_v1 import router as router_v1
+from core.settings import settings
 from items_views import router as items_router
 from users.views import router as users_router
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> None:
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+app.include_router(router=router_v1, prefix=settings.api_v1_prefix)
 app.include_router(users_router)
 app.include_router(items_router)
-
-
-@app.get("/")
-def hello_index():
-    return {
-        "message": "Hi, Lebovsky",
-    }
-
-
-@app.get("/hello/")
-def hello(name: str):
-    name = name.strip().title()
-    return {"message": f"Hi, {name}"}
-
-
-@app.post("/calc/add/")
-def add(a: int, b: int):
-    return {
-        "a": a,
-        "b": b,
-        "summ": a + b,
-    }
 
 
 if __name__ == "__main__":

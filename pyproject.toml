@@ -13,11 +13,47 @@ sqlalchemy = {extras = ["asyncio"], version = "^2.0.31"}
 psycopg2 = "^2.9.9"
 pydantic-settings = "^2.3.4"
 aiosqlite = "^0.20.0"
+alembic = "^1.13.2"
 
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"
 pytest = "^8.2.2"
+isort = "^5.13.2"
+flake8 = "^7.1.0"
+mypy = "^1.11.0"
+pre-commit = "^3.7.1"
+
+
+
+[tool.black]
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | manage.py           # also separately exclude a file named foo.py in the root of the project
+)
+'''
+line-length = 119
+
+
+[tool.isort]
+combine_as_imports = true
+line_length = 119
+profile = "black"
+skip = "migrations, templates"
+skip_gitignore = true
+
 
 [build-system]
 requires = ["poetry-core"]
