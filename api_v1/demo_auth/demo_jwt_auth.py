@@ -1,44 +1,31 @@
 from fastapi import APIRouter, Depends, Form, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jwt.exceptions import InvalidTokenError
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 
+from api_v1.demo_auth.crud import user_db
+from api_v1.demo_auth.helpers import create_access_token, create_refresh_token
+from api_v1.demo_auth.validation import (
+    get_current_auth_user,
+    get_current_auth_user_for_refresh,
+    get_current_token_payload,
+)
 from auth import utils as auth_utils
 from users.schemas import UserSchema
 
-# http_bearer_scheme = HTTPBearer()
-oauth2__scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/v1/demo-auth/jwt-auth/login/",
-)
+http_bearer_scheme = HTTPBearer(auto_error=False)
 
 
 class TokenInfo(BaseModel):
     access_token: str
-    token_type: str
+    refresh_token: str | None = None
+    token_type: str = "Bearer"
 
 
 router = APIRouter(
     prefix="/jwt-auth",
     tags=["JWT"],
+    dependencies=[Depends(http_bearer_scheme)],
 )
-
-John = UserSchema(
-    username="John",
-    password=auth_utils.hash_password("qwerty"),
-    email="Jonh@example.com",
-    active=True,
-)
-
-Samium = UserSchema(
-    username="Samium",
-    password=auth_utils.hash_password("secret"),
-    active=True,
-)
-
-user_db: dict[str, UserSchema] = {
-    John.username: John,
-    Samium.username: Samium,
-}
 
 
 def validate_auth_user(
@@ -69,40 +56,6 @@ def validate_auth_user(
     return user
 
 
-def get_current_token_payload(
-    # credentials: HTTPBasicCredentials = Depends(http_bearer_scheme),
-    token: str = Depends(oauth2__scheme),
-) -> dict:
-    # token = credentials.credentials
-    try:
-        payload = auth_utils.decode_jwt(
-            token,
-        )
-    except InvalidTokenError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid token error: {e}",
-        )
-    return payload
-
-
-def get_current_auth_user(
-    payload: dict = Depends(get_current_token_payload),
-) -> UserSchema:
-    username: str | None = payload.get("sub")
-    if not username:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
-    if not (user := user_db.get(username)):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
-    return user
-
-
 def get_current_active_user(
     user: UserSchema = Depends(get_current_auth_user),
 ) -> UserSchema:
@@ -118,18 +71,27 @@ def get_current_active_user(
 def auth_user_issue_jwt(
     user: UserSchema = Depends(validate_auth_user),
 ) -> TokenInfo:
-    jwt_payload = {
-        # subject
-        "sub": user.username,
-        "username": user.username,
-        "email": user.email,
-    }
-    token = auth_utils.encode_jwt(
-        jwt_payload,
-    )
+    access_token = create_access_token(user)
+    refresh_token = create_refresh_token(user)
     return TokenInfo(
-        access_token=token,
-        token_type="Bearer",
+        access_token=access_token,
+        refresh_token=refresh_token,
+    )
+
+
+@router.post(
+    "/refresh/",
+    response_model=TokenInfo,
+    response_model_exclude_none=True,
+)
+def auth_refresh_jwt(
+    user: UserSchema = Depends(get_current_auth_user_for_refresh),
+    # user: UserSchema = Depends(get_auth_user_from_token_of_type(REFRESH_TOKEN_TYPE)),
+    # user: UserSchema = Depends(UserGetterFromToken(REFRESH_TOKEN_TYPE)),
+) -> TokenInfo:
+    access_token = create_access_token(user)
+    return TokenInfo(
+        access_token=access_token,
     )
 
 

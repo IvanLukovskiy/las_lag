@@ -1,12 +1,10 @@
 from datetime import datetime, timedelta
+from uuid import uuid4
 
 import bcrypt
 import jwt
 
 from core.settings import settings
-
-# private_key = b"-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS..."
-# public_key = b"-----BEGIN PUBLIC KEY-----\nMHYwEAYHKoZIzj0CAQYFK4EEAC..."
 
 
 def encode_jwt(
@@ -25,6 +23,7 @@ def encode_jwt(
     to_encode.update(
         exp=expire,
         iat=now,
+        jti=str(uuid4()),
     )
     encoded = jwt.encode(
         payload=to_encode,
